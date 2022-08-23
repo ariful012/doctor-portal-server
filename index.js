@@ -48,6 +48,8 @@ async function run() {
     const paymentCollection = client
       .db("doctors_portal")
       .collection("payments");
+    const reviewsCollection = client.db("doctors_portal").collection("reviews");
+
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
       const requesterAccount = await userCollection.findOne({
@@ -227,6 +229,19 @@ async function run() {
       const email = req.params.email;
       const filter = { email: email };
       const result = await doctorCollection.deleteOne(filter);
+      res.send(result);
+    });
+
+    // reviews api
+    app.get("/reviews", async (req, res) => {
+      const query = {};
+      const cursor = reviewsCollection.find(query);
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      const result = await reviewsCollection.insertOne(review);
       res.send(result);
     });
   } finally {
